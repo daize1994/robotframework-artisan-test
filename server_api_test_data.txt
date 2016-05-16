@@ -1,0 +1,14 @@
+*** Variables ***
+${android_java_crash.json}    ${CURDIR}/jsondata/android/android_java_crash.json    # android的java崩溃日志
+${android_normal.json}    ${CURDIR}/jsondata/android/android_normal.json    # android的session日志
+${android_native.json}    ${CURDIR}/jsondata/android/android_native_crash(x86).json
+${android_mapping_crash.json}    ${CURDIR}/jsondata/android/android_java_maping_crash.json
+${ios_normal.json}    ${CURDIR}/jsondata/ios/ios_normal.json
+${ios_crash.json}    ${CURDIR}/jsondata/ios/ios_crash(armv7s).json
+${sdk_ip}         http://192.168.100.200
+${query_ip}       http://192.168.100.200:10086   # 查询统计数据的ip和端口
+${webapi_ip}      http://192.168.100.200:9527    # webapi的地址
+${token}          4debb41d64a043d8a887199943095ead
+${app_id}         N8B1Z74X
+${ver_name}       6.14.0
+${ver_code}       127
