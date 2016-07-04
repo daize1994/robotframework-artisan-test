@@ -1,5 +1,5 @@
 *** Variables ***
-${webapi_ip}      http://test-artisan.testbird.com:9527   # webapi的地址
+${webapi_ip}      http:192.168.1.1:9527   # webapi的地址
 ${token}    4debb41d64a043d8a887199943095ead    # 用于查询webapi，需要一个能够查询interface-app的有效token
 ${dt_session}   .eJxVjkFOxDAMRe-S9VAlbdMkswNxBPaR7bpNNZCOxgkSIO5OimYzK1v-78n_R8WCUbiULa_qrO6bdIWlqJOKUEuKVfgWt7nlVrvpOH_yTbY9q7N5YBDowvkA4XqVDoj2mkt3AN3r23MbL3fi9P-YqpT9o4kX_mqSQQrzYAhotBbH3rALbGHxoL3FMA09aQODP-x3yGuFlZv2nZ4SZHmsm0BSy7wbw6QXh8YM3qPtZ4uaMYxWU7_MC9mJNDlUv39cOFbc:1bFfNO:0iwYr2ZaAWiRRe9-q3Wr323b3rQ
 ${sessionid}    #测试环境无需sessionid

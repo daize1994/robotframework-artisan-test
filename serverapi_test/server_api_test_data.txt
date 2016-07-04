@@ -6,8 +6,8 @@ ${android_mapping_crash.json}    ${CURDIR}/jsondata/android/android_java_maping_
 ${ios_crash_armv7s.json}     ${CURDIR}/jsondata/ios/ios_crash(armv7s).json
 ${app_id}         Aw3z14mK
 ${test_app_id}    g2n0qB9y
-${sdk_ip}         http://artisan.testbird.com    # 接收sdk日志的目标服务器ip:123.59.132.227
-${test_sdk_ip}    http://test-artisan.testbird.com:9528
-${query_ip}       http://10.19.157.249:10086    # 查询统计数据的ip和端口
+${sdk_ip}         http://127.0.0.1    # 接收sdk日志的目标服务器ip:github上已使用虚假地址屏蔽，保证安全
+${test_sdk_ip}    http://192.168.1.1
+${query_ip}       http://127.0.0.1:10086    # 查询统计数据的ip和端口
 
 *** Keywords ***
