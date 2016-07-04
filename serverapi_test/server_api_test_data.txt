@@ -1,0 +1,13 @@
+*** Variables ***
+${android_java_crash.json}    ${CURDIR}/jsondata/android/android_java_crash.json    # android的java崩溃日志
+${android_normal.json}    ${CURDIR}/jsondata/android/android_normal.json    # android的session日志
+${android_native.json}    ${CURDIR}/jsondata/android/android_native_crash(x86).json
+${android_mapping_crash.json}    ${CURDIR}/jsondata/android/android_java_maping_crash.json
+${ios_crash_armv7s.json}     ${CURDIR}/jsondata/ios/ios_crash(armv7s).json
+${app_id}         Aw3z14mK
+${test_app_id}    g2n0qB9y
+${sdk_ip}         http://artisan.testbird.com    # 接收sdk日志的目标服务器ip:123.59.132.227
+${test_sdk_ip}    http://test-artisan.testbird.com:9528
+${query_ip}       http://10.19.157.249:10086    # 查询统计数据的ip和端口
+
+*** Keywords ***

@@ -1,0 +1,16 @@
+*** Variables ***
+${Activity1_java01.json}    ${CURDIR}/jsondata/android/demo/android_java_crash_ClassCastException-ASUS.json
+#${Activity1_java02.json}    ${CURDIR}/jsondata/android/demo/android_java_crash_ClassCastException-moto.json    #demo账号该数据报错,先规避掉
+${mainactivity_java03.json}    ${CURDIR}/jsondata/android/demo/android_java_crash_IndexOutOfBounds-oppo.json
+${mainactivity_java04.json}    ${CURDIR}/jsondata/android/demo/android_java_crash_NPE_-P6.json
+${mainactivity_java05.json}    ${CURDIR}/jsondata/android/demo/android_java_crash_NPE-ASUS.json
+${Activity2_java06.json}    ${CURDIR}/jsondata/android/demo/android_java_crash_OutOfMemoryError-ASUS.json
+${Activity2_java07.json}    ${CURDIR}/jsondata/android/demo/android_java_crash_UnsatisfiedLinkError-ASUS.json
+@{ios_crash}      ${CURDIR}/jsondata/ios/demo/ios_ns_crash_armv7s.json    ${CURDIR}/jsondata/ios/demo/ios_ns_crash_arm64.json    ${CURDIR}/jsondata/ios/demo/ios_memory_crash_arm64.json    ${CURDIR}/jsondata/ios/demo/ios_catch_exception_arm64.json
+${android_app_id}    bP3aRnxL
+${ios_app_id}     a93LrB7V
+${sdk_ip}         http://artisan.testbird.com    # 接收sdk日志的目标服务器ip:123.59.132.227
+${query_ip}       http://10.19.157.249:10086    # 查询统计数据的ip和端口
+${half_tbid}      80E80F31-F88A-4FB3-BDCB-
+&{ios_device_model_os_version}     iPhone5,3=7.1.2     iPhone4,1=7.1.2     iPhone6,1=8.1     iPhone6,2=8.2     iPhone8,1=9.3     iPhone8,2=9.1.2    iPad5,4=8.3
+...               iPad6,7=9.2.1    iPod7,1=9.0     iPhone7,1=8.2     iPhone7,2=9.2     iPhone5,3=8.1.2    # 列举部分ios设备型号和os

@@ -1,0 +1,5 @@
+*** Variables ***
+${webapi_ip}      http://crash.testbird.com    # webapi的地址
+${token}    d77be993e66c476983c88c13d75d0d38    # 用于查询webapi，需要一个能够查询interface-app的有效token
+${dt_session}     #生产环境无需dt_session也可
+${sessionid}    5tzyp4hh7jtc0hpcrdaerh1j8005pqsi
