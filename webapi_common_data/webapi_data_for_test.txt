@@ -1,0 +1,11 @@
+*** Variables ***
+${android_java_crash.json}    ${CURDIR}/jsondata/android/android_java_crash.json    # android的java崩溃日志
+${android_normal.json}    ${CURDIR}/jsondata/android/android_normal.json    # android的session日志
+${app_id}    g2n0qB9y
+${sdk_ip}    http://test-artisan.testbird.com:9528
+${query_ip}       http://test-artisan.testbird.com:10086    # 查询统计数据的ip和端口
+${webapi_ip}      http://test-artisan.testbird.com:9527   # webapi的地址
+# *************权限信息***************** #
+${token}    4debb41d64a043d8a887199943095ead    # 用于查询webapi，需要一个能够查询interface-app的有效token
+${dt_session}     .eJxVjsFuwyAMht-FcxcFKIH0tmmP0DsyxoSoG6lqqLRNe_eRqZeebPn_Pts_wtfgmWpdyyJO4tHxUImrOAgPrWbfmG5-jT03o5328Z1uvG5FnOQTEwAvVHYQrlceAHFrpQ47MLyfX3t5exCH_8PYuG6fXbzQV5dkwDlqiYBHY8JRSbIzGUgORmfCPGmFowTtdvsDytJgoa5955cMhZ_fzcC5Z4hOmxTHFGiyfSXqZDEkqUBamaKzUTkVkhK_f39MV5c:1bwNQk:2lttkGBd2Lt_rumk8BeNadPU40g
+${sessionid}    #测试环境无需sessionid

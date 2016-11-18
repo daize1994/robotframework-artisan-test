@@ -1,0 +1,11 @@
+*** Variables ***
+${android_java_crash.json}    ${CURDIR}/jsondata/android/android_java_crash.json    # android的java崩溃日志
+${android_normal.json}    ${CURDIR}/jsondata/android/android_normal.json    # android的session日志
+${app_id}         Aw3z14mK
+${sdk_ip}         http://artisan.testbird.com    # 接收sdk日志的目标服务器ip:123.59.132.227
+${query_ip}       http://10.19.90.125:10086    # 查询统计数据的ip和端口
+${webapi_ip}      http://crash.testbird.com    # webapi的地址
+# *************权限信息***************** #
+${token}    d77be993e66c476983c88c13d75d0d38    # 用于查询webapi，需要一个能够查询interface-app的有效token
+${dt_session}    .eJxVzs1uwyAMB_B34dxFzleB3jbtEXpHtiEh6kaiAJW2qu9eqHrpyZb1-9u-CZPIRJfSEmZxEq8uNtu-2sxpWYM4CIM5eZOj281ii2pBKlXnV7fHSk7tGyLkiwtV4rbFBpnXHFJTQfN9_izl6yUOz_ucY1p_S_Di_kpIOoJustqyxuHIRIMeuJOAmsaj1FBTPxjmjLMr_N9_eAzx_U-P0df7HTONYNXUTTAosmWHoh57HGWrHUgYLUDbi_sDy6pXvw:1bwNFE:j0Pi2GCjGiEjEdZO20ApPYAo4nQ
+${sessionid}    aklmdp7xmpoefgbzwe7st4n70elmbpyp

@@ -1,7 +1,8 @@
 *** Settings ***
 Library           ArtisanCustomLibrary
-Resource          server_api_test_data.txt    # 接口测试专用数据
 Resource          ../common_keywords.txt    # 公用用户关键字
+Resource          server_api_test_data.txt    # 测试环境专用数据
+#Resource          server_api_prod_data.txt    # 生产环境专用数据
 
 *** Variables ***
 
@@ -14,22 +15,29 @@ get_crashTotal_current
     log to console    Current:[Total issues,Total crash,reporter]=${init_issueCrashReporter_list}    no_newline=true
 
 send_android_session
-    editJson    ${android_normal.json}    app_key=${app_id}
+    [Tags]    sdk2influxDB
+    ${date}=    Get Time    epoch    UTC+8 hour    # 获取当前UTC时间
+    ${date}=    Evaluate    ${date}*1000    # 被测系统的时间精确到毫秒
+    ${date}=    Convert To Integer    ${date}
+    editJson    ${android_normal.json}    app_key=${app_id}    date=${date}
     post_sdk_event    ${android_normal.json}    ${sdk_ip}
     sleep    3
 
 send_android_java_crash
     [Tags]    sdk2influxDB
+    ${date}=    Get Time    epoch    UTC+8 hour    # 获取当前UTC时间
+    ${date}=    Evaluate    ${date}*1000    # 被测系统的时间精确到毫秒
+    ${date}=    Convert To Integer    ${date}
     ${line}    Evaluate    random.randint(190,200)    modules=random, sys
     #把行号写到crash_stack
     ${crash_stack}    randomStack    ${line}
     #随机一个device_id
     ${device_id}    Evaluate    random.randint(1999990,2000000)    modules=random, sys
     ${device_id}    Convert To String    ${device_id}
-    editJson    ${android_java_crash.json}    app_key=${app_id}    device_id=${device_id}    crash_stack=${crash_stack}
+    editJson    ${android_java_crash.json}    app_key=${app_id}    date=${date}    device_id=${device_id}    crash_stack=${crash_stack}
     : FOR    ${I}    IN RANGE    1
     \    post_sdk_event    ${android_java_crash.json}    ${sdk_ip}
-    sleep    10
+    sleep    8
 
 send_android_native_crash
     editJson    ${android_java_crash.json}    app_key=${app_id}
@@ -73,8 +81,14 @@ send_ios_crash
     postjson    ${ios_crash_armv7s.json}    ${sdk_ip}
 
 cretae_verison
-    ${random_ver_code}    Evaluate    random.randint(1,200)    modules=random, sys
-    editJson    ${android_normal.json}    app_version_code=${random_ver_code}    app_version_name=auto_create_v1.0
+    [Documentation]  上报新版本的session,检查新版本是否创建成功
+    [Tags]    autotest
+    ${date}=    Get Time    epoch    UTC+8 hour    # 获取当前UTC时间
+    ${date}=    Evaluate    ${date}*1000    # 被测系统的时间精确到毫秒
+    ${date}=    Convert To Integer    ${date}
+    ${random_ver_code}=      Convert To String    ${date}    # 把当前时间作为随机version_code,可保证每次测试都不一样
+    editJson    ${android_normal.json}    app_key=${app_id}    date=${date}    app_version_code=${random_ver_code}    app_version_name=autotest1.0
     post_sdk_event    ${android_normal.json}    ${sdk_ip}
     sleep    3
-    #todo：下面需要补充：查询版本列表
+    # 判断该版本是否建立成功并生效
+    get_config    ${sdk_ip}    ${app_id}    autotest1.0    ${random_ver_code}

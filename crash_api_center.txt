@@ -1,0 +1,47 @@
+*** Settings ***
+Library           Collections
+Library           RequestsLibrary
+Library           ArtisanCustomLibrary
+Library           XML
+Library           OperatingSystem
+
+*** Variables ***
+${query_ip}    192.168.x.x
+${app_key}    aaaaaa
+
+*** Keywords ***
+get_app_summary
+    [Arguments]    ${app_version_name}    ${app_version_code}    ${start_time}=None    ${end_time}=None    ${issue_type}=1
+    Create Session    event_query    ${query_ip}
+    ${response}=    Get Request    event_query    /crash_profile?app_k%3D${app_key}%26avn%3D${app_version_name}%26avc%3D${app_version_code}
+    ...    %26bg%3D${start_time}%26ed%3D${end_time}%26iss_tp%3D${issue_type}
+
+    ${responsedata}    To Json    ${response.content}
+    log to console     <<--response data-->>: ${response.content}
+    ${code}=    Get From Dictionary    ${responsedata}    code
+    ${payload}=    Get From Dictionary    ${responsedata}    payload
+    ${issue_count}=    Get From Dictionary    ${payload}    issue_count
+    ${crash_count}=    Get From Dictionary    ${payload}    crash_count
+    ${device_count}=    Get From Dictionary    ${payload}    device_count
+
+    Should Be Equal As Integers    ${response.status_code}    200    <<--response status!=200-->>
+    Should Be Equal As Integers    ${code}    0    <<--query error,response data code!=0-->>
+    [Return]    ${issue_count}    ${crash_count}    ${device_count}
+
+get_crash_trend_daily
+    [Arguments]    ${app_version_name}    ${app_version_code}    ${start_time}=None    ${end_time}=None    ${issue_type}=1    ${f}=None
+    Create Session    event_query    ${query_ip}
+    ${response}=    Get Request    event_query    /crash_stat/daily?app_k%3D${app_key}%26avn%3D${app_version_name}%26avc%3D${app_version_code}
+    ...    %26bg%3D${start_time}%26ed%3D${end_time}%26iss_tp%3D${issue_type}%26f%3D${f}
+
+    ${responsedata}    To Json    ${response.content}
+    log to console     <<--response data-->>: ${response.content}
+    ${code}=    Get From Dictionary    ${responsedata}    code
+    ${payload}=    Get From Dictionary    ${responsedata}    payload
+    ${issue_count}=    Get From Dictionary    ${payload}    issue_count
+    ${crash_count}=    Get From Dictionary    ${payload}    crash_count
+    ${device_count}=    Get From Dictionary    ${payload}    device_count
+
+    Should Be Equal As Integers    ${response.status_code}    200    <<--response status!=200-->>
+    Should Be Equal As Integers    ${code}    0    <<--query error,response data code!=0-->>
+    [Return]    ${issue_count}    ${crash_count}    ${device_count}

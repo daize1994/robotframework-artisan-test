@@ -1,0 +1,15 @@
+*** Variables ***
+${android_java_crash.json}    ${CURDIR}/jsondata/android/android_java_crash.json    # android的java崩溃日志
+${android_normal.json}    ${CURDIR}/jsondata/android/android_normal.json    # android的session日志
+${android_native.json}    ${CURDIR}/jsondata/android/android_native_crash(x86).json
+${android_mapping_crash.json}    ${CURDIR}/jsondata/android/android_java_maping_crash.json
+${ios_normal.json}    ${CURDIR}/jsondata/ios/ios_normal.json
+${ios_crash.json}    ${CURDIR}/jsondata/ios/ios_memory_crash(armv7s).json
+${sdk_ip}    http://test-artisan.testbird.com:9528    # http://artisan.testbird.com(http://192.168.100.200:80)(http://test-artisan.testbird.com:9528)
+${query_ip}    http://test-artisan.testbird.com:10086    # http://10.19.157.249:10086(http://192.168.100.200:10086)(http://test-artisan.testbird.com:10086)
+${app_id}    0o3NLqBm
+${ver_name}    6.5.2
+${ver_code}    6522130
+#设备id
+${device_id}    22334433111122220160907111
+${date}    1473177655

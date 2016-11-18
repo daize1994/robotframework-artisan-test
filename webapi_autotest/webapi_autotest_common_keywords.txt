@@ -1,0 +1,53 @@
+*** Settings ***
+Library    ArtisanCustomLibrary
+Resource   ../common_keywords.txt
+Resource           ../webapi_common_data/webapi_data_for_test.txt    # 测试环境数据
+#Resource          ../webapi_common_data/webapi_data_for_prod.txt    # 生产环境数据
+
+
+*** Keywords ***
+send_session_and_crash
+    [Documentation]    关键字:发送1条session和crash
+    ${date}=    Get Time    epoch    UTC+8 hour    # 获取当前UTC时间
+    ${date_string}=    Evaluate    ${date}*1000    # 被测系统的时间需要*1000
+    ${date}=    Convert To Integer    ${date_string}
+    editJson    ${android_normal.json}    app_key=${app_id}    date=${date}
+    editJson    ${android_java_crash.json}    app_key=${app_id}    date=${date}
+    post_sdk_event    ${android_normal.json}    ${sdk_ip}
+    sleep    1
+    post_sdk_event    ${android_java_crash.json}    ${sdk_ip}
+    log to console    \nhas send 1 session and crash
+    sleep    3
+
+send_session_and_crash_use_new_device
+    [Documentation]    关键字:发送1条session和crash,使用新设备,device_id用当前时间,以确保不会重复
+    [Arguments]     ${send_times}
+    ${date}=    Get Time    epoch    UTC+8 hour    # 获取当前UTC时间
+    ${date}=    Evaluate    ${date}*1000    # 被测系统的时间精确到毫秒
+    ${date}=    Convert To Integer    ${date}
+    ${device_id}=      Convert To String    ${date}
+    editJson    ${android_normal.json}    app_key=${app_id}    date=${date}    device_id=${device_id}
+    editJson    ${android_java_crash.json}    app_key=${app_id}    date=${date}    device_id=${device_id}
+    :for    ${i}   in range   ${send_times}
+    \    post_sdk_event    ${android_normal.json}    ${sdk_ip}
+    \    sleep    1
+    \    post_sdk_event    ${android_java_crash.json}    ${sdk_ip}
+    log to console    \nhas send ${send_times}times session and crash with new_device
+    sleep    3
+
+send_session_and_crash_with_new_stack_use_new_device
+    [Documentation]    关键字:发送1条session和crash,使用新设备,device_id用当前时间,以确保不会重复
+    [Arguments]     ${send_times}
+    ${date}=    Get Time    epoch    UTC+8 hour    # 获取当前UTC时间
+    ${date}=    Evaluate    ${date}*1000    # 被测系统的时间精确到毫秒
+    ${date}=    Convert To Integer    ${date}
+    ${device_id}=      Convert To String    ${date}
+    ${crash_stack}=    randomstack    ${device_id}
+    editJson    ${android_normal.json}    app_key=${app_id}    date=${date}    device_id=${device_id}
+    editJson    ${android_java_crash.json}    app_key=${app_id}    date=${date}    device_id=${device_id}    crash_stack=${crash_stack}
+    :for    ${i}   in range   ${send_times}
+    \    post_sdk_event    ${android_normal.json}    ${sdk_ip}
+    \    sleep    1
+    \    post_sdk_event    ${android_java_crash.json}    ${sdk_ip}
+    log to console    \nhas send ${send_times}times session and crash with new_issue use new_device
+    sleep    3

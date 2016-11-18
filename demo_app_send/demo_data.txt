@@ -1,17 +1,44 @@
 *** Variables ***
-${Activity1_java01.json}    ${CURDIR}/jsondata/android/demo/android_java_crash_ClassCastException-ASUS.json
-#${Activity1_java02.json}    ${CURDIR}/jsondata/android/demo/android_java_crash_ClassCastException-moto.json    #demo账号该数据报错,先规避掉
-${mainactivity_java03.json}    ${CURDIR}/jsondata/android/demo/android_java_crash_IndexOutOfBounds-oppo.json
-${mainactivity_java04.json}    ${CURDIR}/jsondata/android/demo/android_java_crash_NPE_-P6.json
-${mainactivity_java05.json}    ${CURDIR}/jsondata/android/demo/android_java_crash_NPE-ASUS.json
-${Activity2_java06.json}    ${CURDIR}/jsondata/android/demo/android_java_crash_OutOfMemoryError-ASUS.json
-${Activity2_java07.json}    ${CURDIR}/jsondata/android/demo/android_java_crash_UnsatisfiedLinkError-ASUS.json
-@{ios_crash}      ${CURDIR}/jsondata/ios/demo/ios_ns_crash_armv7s.json    ${CURDIR}/jsondata/ios/demo/ios_ns_crash_arm64.json    ${CURDIR}/jsondata/ios/demo/ios_memory_crash_arm64.json    ${CURDIR}/jsondata/ios/demo/ios_catch_exception_arm64.json
-${android_app_id}    bP3aRnxL
-${ios_app_id}     a93LrB7V
-${test_app_id}    g2n0qB9y
-${sdk_ip}         http://127.0.0.1    # 接收sdk日志的目标服务器ip:github上已使用虚假地址屏蔽，保证安全
-${query_ip}       http://127.0.0.1:10086    # 查询统计数据的ip和端口
-${half_tbid}      80E80F31-F88A-4FB3-BDCB-
-&{ios_device_model_os_version}     iPhone5,3=7.1.2     iPhone4,1=7.1.2     iPhone6,1=8.1     iPhone6,2=8.2     iPhone8,1=9.3     iPhone8,2=9.1.2    iPad5,4=8.3
+# android日志数据
+${android_session.json}     ${CURDIR}/jsondata/android/demo/android_session_1.0.4.json
+${java00.json}    ${CURDIR}/jsondata/android/demo/android_java_crash_00_1.0.4.json
+${java01.json}    ${CURDIR}/jsondata/android/demo/android_java_crash_01_1.0.4.json
+${java02.json}    ${CURDIR}/jsondata/android/demo/android_java_crash_02_1.0.4.json
+${java03.json}    ${CURDIR}/jsondata/android/demo/android_java_crash_03_1.0.4.json
+${exception00.json}    ${CURDIR}/jsondata/android/demo/android_caught_exception_00_1.0.4.json
+${exception01.json}    ${CURDIR}/jsondata/android/demo/android_caught_exception_01_1.0.4.json
+${exception02.json}    ${CURDIR}/jsondata/android/demo/android_caught_exception_02_1.0.4.json
+${native00.json}    ${CURDIR}/jsondata/android/demo/android_native_crash_00_1.0.4.json
+@{android_crash_list}    ${java00.json}    ${java01.json}    ${java02.json}    ${java03.json}    ${exception00.json}    ${exception01.json}    ${exception02.json}    ${native00.json}
+
+# android 设备数据
+${device00}    ${CURDIR}/jsondata/android/device_message/ASUS-T00J.json
+${device01}    ${CURDIR}/jsondata/android/device_message/Meizu-MX5.json
+${device02}    ${CURDIR}/jsondata/android/device_message/OPPO-R7.json
+${device03}    ${CURDIR}/jsondata/android/device_message/SM-I739.json
+@{device_list}    ${device00}    ${device01}    ${device02}    ${device03}    ${device00}    ${device01}    ${device02}    ${device03}
+
+# ios日志数据
+${ios_session.json}    ${CURDIR}/jsondata/ios/demo/ios_session_1.0.4.json
+${ios_oc00.json}    ${CURDIR}/jsondata/ios/demo/ios_objc_crash_1.0.4.json
+${ios_exception00.json}    ${CURDIR}/jsondata/ios/demo/ios_caught_exception_1.0.4.json
+${ios_native00.json}    ${CURDIR}/jsondata/ios/demo/ios_native_crash_1.0.4.json
+@{ios_crash_list}    ${ios_oc00.json}    ${ios_exception00.json}    ${ios_native00.json}
+
+# ios型号数据
+&{ios_device_model_os_version}    iPhone5,3=7.1.2     iPhone4,1=7.1.2     iPhone6,1=8.1     iPhone6,2=8.2     iPhone8,1=9.3     iPhone8,2=9.1.2    iPad5,4=8.3
 ...               iPad6,7=9.2.1    iPod7,1=9.0     iPhone7,1=8.2     iPhone7,2=9.2     iPhone5,3=8.1.2    # 列举部分ios设备型号和os
+${half_tbid}      80E80F31-F88A-4FB3-BDCB-
+
+# crash共用数据
+${android_app_id}    61B22kBb
+${ios_app_id}     KO3KYxBN
+${sdk_ip}         http://artisan.testbird.com    # 接收sdk日志的目标服务器ip:123.59.132.227
+${query_ip}       http://10.19.157.249:10086    # 查询统计数据的ip和端口
+
+# beta共用数据
+${beta_url}    http://beta.testbird.com
+${android_beta_view_path}    /KYb8AX/
+${android_beta_download_path}    /api/app/release/e15b1d46f9074f518a6b796a75c851c7/install/
+${ios_beta_view_path}    /pYENyD/
+${ios_beta_download_path}    /api/app/release/2a7f805c627d49e682b1f1656fb401cc/install/

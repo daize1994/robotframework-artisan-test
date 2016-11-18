@@ -4,24 +4,41 @@ Library           RequestsLibrary
 Library           ArtisanCustomLibrary
 Library           XML
 Library           OperatingSystem
-#Resource          webapi_check/webapi_data_for_prod.txt    # 生产环境webapi鉴权数据
-Resource          webapi_check/webapi_data_for_test.txt    # 测试环境webapi鉴权数据
+Resource          webapi_common_data/webapi_data_for_test.txt     # 测试环境webapi鉴权数据
+#Resource          webapi_common_data/webapi_data_for_prod.txt    # 生产环境webapi鉴权数据
 
 *** Keywords ***
 get_CrashTotal_current
+    # 会返回所有时间内所有版本crash和exception数的和
     [Arguments]    ${appkey}     ${query_ip}
+    ${crash_path}=    set variable    /crash_profile?app_k=${appkey}&iss_tp=1
+    ${exception_path}=    set variable    /crash_profile?app_k=${appkey}&iss_tp=2
     Create Session    event_query    ${query_ip}
-    ${response}=    Get Request    event_query    /issue_crash_reporter_total?app_key%3D${appkey}
-    ${responsedata}    To Json    ${response.content}
-    ${data}=    Get From Dictionary    ${responsedata}    data
-    ${result}=    Get From Dictionary    ${data}    result
-    ${issueTotal}=    Get From Dictionary    ${result}    issueTotal
-    ${crashTotal}=    Get From Dictionary    ${result}    crashTotal
-    ${reporterTotal}=    Get From Dictionary    ${result}    reporterTotal
-    ${return_code}=    Get From Dictionary    ${responsedata}    code
-    Should Be Equal As Integers    ${response.status_code}    200    The service status!=200
-    Should Be Equal As Integers    ${return_code}    0    query error,code!=0
-    [Return]    ${issueTotal}    ${crashTotal}    ${reporterTotal}
+    log to console    will request:${query_ip}${crash_path} and ${query_ip}${exception_path}
+    ${crash_response}=    Get Request    event_query    ${crash_path}
+    ${exception_response}=    Get Request    event_query    ${exception_path}
+    ${crash_responsedata}    To Json    ${crash_response.content}
+    ${exception_responsedata}    To Json    ${exception_response.content}
+    log to console     ${crash_response.content}
+    log to console     ${exception_response.content}
+    # crash信息提取
+    ${crash_issue_count}=    GetValueFromDictByKey    ${crash_responsedata}    issue_count
+    ${crash_count}=    GetValueFromDictByKey    ${crash_responsedata}    crash_count
+    ${crash_device_count}=    GetValueFromDictByKey    ${crash_responsedata}    device_count
+    ${crash_return_code}=    GetValueFromDictByKey    ${crash_responsedata}    code
+    # exception信息提取
+    ${exception_issue_count}=    GetValueFromDictByKey    ${exception_responsedata}    issue_count
+    ${exception_count}=    GetValueFromDictByKey    ${exception_responsedata}    crash_count
+    ${exception_device_count}=    GetValueFromDictByKey    ${exception_responsedata}    device_count
+    ${exception_return_code}=    GetValueFromDictByKey    ${exception_responsedata}    code
+    #断言
+    Should Be Equal As Integers    ${crash_response.status_code}    200    The service status!=200
+    Should Be Equal As Integers    ${crash_return_code[0]}    0    query error,code!=0
+    Should Be Equal As Integers    ${exception_response.status_code}    200    The service status!=200
+    Should Be Equal As Integers    ${exception_return_code[0]}    0    query error,code!=0
+    # 计算crash和异常总和,并返回
+    ${crashTotal}=     Evaluate    ${exception_count[0]}+${crash_count[0]}
+    [Return]    ${crashTotal}
 
 get_issueTimeRange_current
     [Arguments]    ${appkey}    ${query_ip}    ${profileKey}=    # 必要参数appkey；可选参数profilekey，默认为第一个issue
@@ -60,6 +77,7 @@ get_issues_list_current
     #发送get请求，并得到response
     ${response}=    Get Request    event_query    /issues?app_key%3D${appkey}&page%3D${page}
     #格式化
+    log to console      ${response.content}
     ${responsedata}    To Json    ${response.content}
     #提取返回信息的data字段的值
     ${data}=    Get From Dictionary    ${responsedata}    data
@@ -76,7 +94,31 @@ post_sdk_event
     ${headers}    Create Dictionary    Content-Type=application/x-www-form-urlencoded    #定义一个头文件
     Create Session    sdk_post    ${ip}    ${headers}    #创建连接
     ${response}=    Post Request    sdk_post    /crash    data=${json}    #发送post请求，带上json数据
+    log to console    \n接收sdk日志接口response_code: ${response.status_code}
     Should Be Equal As Strings    ${response.status_code}    200    error:The service status!=200    #断言
+
+get_config
+    [Arguments]    ${ip}    ${appkey}    ${ver_name}    ${ver_code}    ${config_path}=/config?appKey=${appkey}&verCode=${ver_code}&verName=${ver_name}
+    Create Session    config_api    ${ip}
+    ${response}=    Get Request    config_api    ${config_path}
+    log to console    config_url is: ${ip}${config_path}
+    Should Be Equal As Strings    ${response.status_code}    200    error:The config service status!=200    #断言
+    ${responsedata}    To Json    ${response.content}
+    #提取返回信息的reported字段的值
+    ${version_reported}=    Get From Dictionary    ${responsedata}    reported
+    Should Be Equal As Strings    ${version_reported}    True
+
+get_beta_url
+    [Arguments]    ${ip}    ${path}
+    Create Session    beta_url    ${ip}
+    ${response}=    Get Request    beta_url    ${path}
+    log to console    \nrequest url is: ${ip}${path}
+    Should Be Equal As Strings    ${response.status_code}    200    error:The beta link response status!=200    #断言
+
+send_many_crash
+    [Arguments]    ${counts}
+    : FOR    ${I}    IN RANGE    ${counts}
+    \   post_sdk_event    ${android_normal.json}    ${sdk_ip}
 
 get_webapi
     [Arguments]    ${ip}    ${api_path}
@@ -84,8 +126,7 @@ get_webapi
     ${cookies}    Create Dictionary    dt_session=${dt_session}    sessionid=${sessionid}
     Create Session    webapi    ${ip}    ${headers}    ${cookies}    #创建连接
     ${response}=    Get Request    webapi    ${api_path}
-    log to console    \nRequest ip:${ip}
-    log to console    Request path:${api_path}
+    log to console    \nRequest api:${ip}${api_path}
     log to console    Response message:${response}
     log to console    Response data:${response.content}
     Should Be Equal As Strings    ${response.status_code}    200    error:The service status!=200    #断言
@@ -95,7 +136,7 @@ get_webapi
 get_appication_list
     [Documentation]    必要参数:页数,默认参数:每页应用数=4
     [Arguments]    ${page_size}=100
-    ${response}=    get_webapi    ${webapi_ip}    /webapi/application/list_for_all/?page_size=${page_size}
+    ${response}=    get_webapi    ${webapi_ip}    /api/app/v2/list_for_all/?page_size=${page_size}
     ${response}=    To Json    ${response.content}
     ${app_count}=   GetValueFromDictByKey    ${response}    count
     ${app_key_list}=   GetValueFromDictByKey    ${response}    app_key
@@ -109,57 +150,80 @@ get_appication_list
     [Return]     ${app_count}   ${app_key_list}
 
 get_issue_trend
-    [Arguments]   ${duration}   ${issue_type}    ${appkey}    ${version}=
-    ${response}=    get_webapi    ${webapi_ip}   /webapi/application/issue_trend/?appkey=${appkey}&version=${version}&duration=${duration}&issue_type=${issue_type}
+    [Arguments]   ${duration}   ${issue_type}    ${appkey}    ${version_name}=    ${version_code}=
+    ${response}=    get_webapi    ${webapi_ip}   /api/app/v2/issue_trend/?appkey=${appkey}&version_name=${version_name}&version_code=${version_code}&duration=${duration}&issue_type=${issue_type}
     ${response}=    To Json    ${response.content}
-    ${crashTotal}=    getvaluefromdictbykey    ${response}    crashTotal
-    [Return]    ${crashTotal}
+    log to console    ${response}
+    ${crash_count}=    getvaluefromdictbykey    ${response}    crash_count
+    ${device_count}=    getvaluefromdictbykey    ${response}    device_count
+    [Return]    ${crash_count}    ${device_count}
 
 get_version_list
     [Arguments]    ${page}    ${page_size}    ${appkey}
-    ${response}=    get_webapi    ${webapi_ip}    /webapi/application/version/list/${appkey}/?page=${page}&page_size=${page_size}
+    ${response}=    get_webapi    ${webapi_ip}    /api/app/v2/version/list/${appkey}/?page=${page}&page_size=${page_size}
 
 get_detail
     [Arguments]    ${appkey}
-    ${response}=    get_webapi    ${webapi_ip}    /webapi/application/detail/${appkey}/
+    ${response}=    get_webapi    ${webapi_ip}    /api/app/v2/detail/${appkey}/
 
 get_issue_summary
-    [Arguments]   ${duration}   ${issue_type}    ${appkey}    ${version}=
-    ${response}=    get_webapi    ${webapi_ip}    /webapi/application/issue_summary/?appkey=${appkey}&version=${version}&duration=${duration}&issue_type=${issue_type}
+    [Arguments]   ${duration}   ${issue_type}    ${appkey}    ${version_name}=    ${version_code}=
+    ${response}=    get_webapi    ${webapi_ip}    /api/app/v2/issue_summary/?appkey=${appkey}&version_name=${version_name}&version_code=${version_code}&duration=${duration}&issue_type=${issue_type}
     ${response}=    To Json    ${response.content}
-    ${issueTotal}=    GetValueFromDictByKey      ${response}    issueTotal
-    ${crashTotal}=    GetValueFromDictByKey    ${response}      crashTotal
-    ${reporterTotal}=   GetValueFromDictByKey   ${response}     reporterTotal
-    [Return]    ${issueTotal}    ${crashTotal}    ${reporterTotal}
+    ${issue_count}=    GetValueFromDictByKey      ${response}    issue_count
+    ${crash_count}=    GetValueFromDictByKey    ${response}      crash_count
+    ${device_count}=   GetValueFromDictByKey   ${response}     device_count
+    [Return]    ${issue_count}    ${crash_count}    ${device_count}
 
 get_launched_session
     [Arguments]   ${duration}   ${issue_type}    ${appkey}    ${version_name}=    ${version_code}=
-    ${response}=    get_webapi    ${webapi_ip}    /webapi/application/launched_session/?appkey=${appkey}&version_name=${version_name}&version_code=${version_code}&duration=${duration}&issue_type=${issue_type}
+    ${response}=    get_webapi    ${webapi_ip}    /api/app/v2/launched_session/?appkey=${appkey}&version_name=${version_name}&version_code=${version_code}&duration=${duration}&issue_type=${issue_type}
+    ${response}=    To Json    ${response.content}
+    ${sessionTotal}=    GetValueFromDictByKey      ${response}    total
+    [Return]    ${sessionTotal}
 
 get_active_session
     [Arguments]   ${duration}   ${issue_type}    ${appkey}    ${version_name}=    ${version_code}=
-    ${response}=    get_webapi    ${webapi_ip}    /webapi/application/active_session/?appkey=${appkey}&version_name=${version_name}&version_code=${version_code}&duration=${duration}&issue_type=${issue_type}
+    # 获取当前日期,用于提取截止当天的活跃数
+    ${year}    ${month}    ${day}=    Get Time    year,month,day
+    ${response}=    get_webapi    ${webapi_ip}    /api/app/v2/active_session/?appkey=${appkey}&version_name=${version_name}&version_code=${version_code}&duration=${duration}&issue_type=${issue_type}
+    ${response}=    To Json    ${response.content}
+    ${activeTotal}=    GetValueFromDictByKey      ${response}    ${year}${month}${day}
+    [Return]    ${activeTotal}
 
 get_crash_list
-    [Arguments]   ${duration}   ${issue_type}   ${page}    ${page_size}    ${appkey}    ${version}=
-    ${response}=    get_webapi    ${webapi_ip}    /webapi/application/crash_list/?appkey=${appkey}&version=${version}&duration=${duration}&page=${page}&page_size=${page_size}&issue_type=${issue_type}
+    [Arguments]   ${duration}   ${issue_type}   ${page}    ${page_size}    ${appkey}    ${version_name}=    ${version_code}=
+    ${response}=    get_webapi    ${webapi_ip}    /api/app/v2/crash_list/?appkey=${appkey}&version_name=${version_name}&version_code=${version_code}&duration=${duration}&page=${page}&page_size=${page_size}&issue_type=${issue_type}
     ${response}=    To Json    ${response.content}
-    ${profile_key}=    GetValueFromDictByKey    ${response}    profile_key
-    ${lasttime}=    GetValueFromDictByKey    ${response}    lastTime
-    [Return]    ${profile_key}    ${lasttime}
+    ${issue_id}=    GetValueFromDictByKey    ${response}    issue_id
+    ${max_timestamp}=    GetValueFromDictByKey    ${response}    max_timestamp
+    ${count}=    GetValueFromDictByKey    ${response}    count
+    [Return]    ${issue_id}    ${max_timestamp}    ${count}
 
 get_crash_summary
-    [Arguments]   ${profilekey}    ${duration}   ${issue_type}    ${appkey}    ${version}=
-    ${response}=    get_webapi    ${webapi_ip}    /webapi/application/crash_summary/?appkey=${appkey}&profilekey=${profilekey}&issue_type=${issue_type}&version=${version}&duration=${duration}
+    [Arguments]   ${duration}    ${issue_ids}    ${version_name}=    ${version_code}=
+    ${response}=    get_webapi    ${webapi_ip}    /api/app/v2/crash_summary/?issue_ids=${issue_ids}&version_name=${version_name}&version_code=${version_code}&duration=${duration}
+    ${response}=    To Json    ${response.content}
+    ${crash_count}=    GetValueFromDictByKey       ${response}    crash_count
+    ${device_count}=    GetValueFromDictByKey       ${response}    device_count
+    [Return]    ${crash_count}     ${device_count}
+
+get_crash_id_list
+    [Arguments]   ${issue_id}    ${page}    ${page_size}
+    ${response}=    get_webapi    ${webapi_ip}    /api/app/v2/crash_id_list/?issue_id=${issue_id}&page=${page}&page_size=${page_size}
+    ${response}=    To Json    ${response.content}
+    ${count}=    GetValueFromDictByKey       ${response}    count
+    ${crash_ids}=    GetValueFromDictByKey       ${response}    results
+    [Return]    ${count}     ${crash_ids[0]}    #results本身就是个列表,无需再封一层
 
 get_crash_detail
-    [Arguments]   ${profilekey}    ${direction}   ${issue_type}    ${lasttime}    ${appkey}    ${version}=    ${crashkey}=
-    ${response}=    get_webapi    ${webapi_ip}    /webapi/application/crash_detail/?appkey=${appkey}&profilekey=${profilekey}&issue_type=${issue_type}&version=${version}&direction=${direction}&lasttime=${lasttime}&crashkey=${crashkey}
+    [Arguments]   ${crash_id}
+    ${response}=    get_webapi    ${webapi_ip}    /api/app/v2/crash_detail/?crash_id=${crash_id}
 
 get_crash_version_reporter
-    [Arguments]    ${profilekey}    ${issue_type}    ${appkey}
-    ${response}=    get_webapi    ${webapi_ip}    /webapi/application/crash_version_reporter/?appkey=${appkey}&profilekey=${profilekey}&issue_type=${issue_type}
+    [Arguments]    ${issue_id}
+    ${response}=    get_webapi    ${webapi_ip}    /api/app/v2/crash_version_reporter/?issue_id=${issue_id}
 
 get_crash_distribution_reporter
-    [Arguments]    ${profilekey}    ${issue_type}    ${appkey}
-    ${response}=    get_webapi    ${webapi_ip}    /webapi/application/crash_distribution_reporter/?appkey=${appkey}&profilekey=${profilekey}&issue_type=${issue_type}
+    [Arguments]    ${issue_id}
+    ${response}=    get_webapi    ${webapi_ip}    /api/app/v2/crash_distribution_reporter/?issue_id=${issue_id}
